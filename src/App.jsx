@@ -1,18 +1,15 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
-// import loginService from './services/login'
-import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { useAuth, useField, useResource } from './hooks'
 
 const App = () => {
-  const [notificationMsg, setNotificationMsg] = useState({
-    message: '',
-    type: 'error',
-  })
+  // const [notificationMsg, setNotificationMsg] = useState({
+  //   message: '',
+  //   type: 'error',
+  // })
   const baseUrl = import.meta.env.VITE_BACKEND_URL
   const username = useField('text')
   const password = useField('password')
@@ -29,9 +26,7 @@ const App = () => {
   const addBlogs = newObject => {
     blogFormRef.current.toggleVisibility()
 
-    const token = window.localStorage.getItem('loggedUserBlogApp')
-    blogsService.create(newObject, token)
-    if (blogs.length !== 0) console.log('blogs', blogs)
+    blogsService.create(newObject)
     // try {
     //   blogService.setToken(user.token)
     //   const addedBlogs = await blogService.create(newObject)
@@ -58,39 +53,44 @@ const App = () => {
 
   const updateBlogs = async (id, newObject) => {
     try {
-      console.log('updateBlogs', id, newObject)
-      blogService.setToken(user.token)
-      // const updatedBlogs = await blogService.update(id, newObject)
-      // setBlogs(blogs.map(blog => (blog.id === id ? updatedBlogs : blog)))
-    } catch (exeption) {
-      setNotificationMsg({
-        message: 'An error occured while updating a blog',
-        type: 'error',
-      })
-      setTimeout(() => {
-        setNotificationMsg({
-          message: null,
-        })
-      }, 5000)
+      await blogsService.update(id, newObject)
+    } catch (error) {
+      console.log('delete error', error)
     }
+    // try {
+    //   console.log('updateBlogs', id, newObject)
+    //   const updatedBlogs = await blogService.update(id, newObject)
+    //   setBlogs(blogs.map(blog => (blog.id === id ? updatedBlogs : blog)))
+    // } catch (exeption) {
+    //   setNotificationMsg({
+    //     message: 'An error occured while updating a blog',
+    //     type: 'error',
+    //   })
+    //   setTimeout(() => {
+    //     setNotificationMsg({
+    //       message: null,
+    //     })
+    //   }, 5000)
+    // }
   }
 
   const deleteBlogs = async id => {
-    try {
-      blogService.setToken(user.token)
-      await blogService.deleteBlog(id)
-      // setBlogs(blogs.filter(blog => blog.id !== id))
-    } catch (exeption) {
-      setNotificationMsg({
-        message: 'An error occured while deleting a blog',
-        type: 'error',
-      })
-      setTimeout(() => {
-        setNotificationMsg({
-          message: null,
-        })
-      }, 3000)
-    }
+    blogsService.remove(id)
+    // try {
+    //   blogService.setToken(user.token)
+    //   await blogService.deleteBlog(id)
+    //   // setBlogs(blogs.filter(blog => blog.id !== id))
+    // } catch (exeption) {
+    //   setNotificationMsg({
+    //     message: 'An error occured while deleting a blog',
+    //     type: 'error',
+    //   })
+    //   setTimeout(() => {
+    //     setNotificationMsg({
+    //       message: null,
+    //     })
+    //   }, 3000)
+    // }
   }
 
   const logout = event => {
@@ -103,10 +103,10 @@ const App = () => {
     return (
       <div>
         <h2>log in to application</h2>
-        <Notification
+        {/* <Notification
           message={notificationMsg.message}
           type={notificationMsg.type}
-        />
+        /> */}
         <LoginForm
           handleSubmit={handleLogin}
           usernameInput={username}
@@ -119,10 +119,10 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification
+      {/* <Notification
         message={notificationMsg.message}
         type={notificationMsg.type}
-      />
+      /> */}
       <div>
         {user.name} logged in
         <button type="button" onClick={logout}>

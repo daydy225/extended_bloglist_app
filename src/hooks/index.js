@@ -26,30 +26,73 @@ export const useResource = baseUrl => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const { data } = await axios.get(`${baseUrl}/blogs`)
-        setResources(data.sort((a, b) => b.likes - a.likes))
+        const response = await axios.get(`${baseUrl}/blogs`)
+        setResources(response.data.sort((a, b) => b.likes - a.likes))
       } catch (error) {
-        console.error(error)
+        throw new Error(error)
       }
     }
 
     fetchResources()
   }, [baseUrl])
 
-  const create = async (resource, token) => {
+  const create = async resource => {
     try {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
+      const token = window.localStorage.getItem('loggedUserBlogApp')
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+        const response = await axios.post(`${baseUrl}/blogs`, resource, config)
+        console.log('blogs', response.data)
+        setResources([...resources, response.data])
       }
-      const response = await axios.post(`${baseUrl}/blogs`, resource, config)
-      setResources([...resources, response.data])
     } catch (error) {
-      console.error(error)
+      throw new Error(error)
+    }
+  }
+
+  const update = async (id, resource) => {
+    try {
+      const token = window.localStorage.getItem('loggedUserBlogApp')
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+
+        const response = await axios.put(
+          `${baseUrl}/blogs/${id}`,
+          resource,
+          config,
+        )
+        setResources(
+          resources.map(r => (r.id === id ? { ...r, ...response.data } : r)),
+        )
+      }
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  const remove = async id => {
+    try {
+      const token = window.localStorage.getItem('loggedUserBlogApp')
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+        await axios.delete(`${baseUrl}/blogs/${id}`, config)
+        setResources(resources.filter(r => r.id !== id))
+      }
+    } catch (error) {
+      throw new Error(error)
     }
   }
 
   const service = {
     create,
+    update,
+    remove,
   }
 
   return [resources, service]

@@ -3,31 +3,13 @@ import PropTypes from 'prop-types'
 import { useField } from '../hooks'
 
 const BlogForm = ({ addBlog }) => {
-  // const [title, setTitle] = useState('')
-  // const [author, setAuthor] = useState('')
-  // const [url, setUrl] = useState('')
   const title = useField('text')
   const author = useField('text')
   const url = useField('text')
 
-  // const handleTitleChange = event => {
-  //   setTitle(event.target.value)
-  // }
-  // const handleAuthorChange = event => {
-  //   setAuthor(event.target.value)
-  // }
-  // const handleUrlChange = event => {
-  //   setUrl(event.target.value)
-  // }
-
   const createBlog = event => {
     event.preventDefault()
     addBlog({
-      title: title.value,
-      author: author.value,
-      url: url.value,
-    })
-    console.log('blog object', {
       title: title.value,
       author: author.value,
       url: url.value,
