@@ -1,104 +1,67 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
-import loginService from './services/login'
+// import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
+import { useAuth, useField, useResource } from './hooks'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [notificationMsg, setNotificationMsg] = useState({
     message: '',
     type: 'error',
   })
+  const baseUrl = import.meta.env.VITE_BACKEND_URL
+  const username = useField('text')
+  const password = useField('password')
 
-  const fetchBlogs = async () => {
-    const response = await blogService.getAll()
-    setBlogs(response.sort((a, b) => b.likes - a.likes))
-  }
+  const [user, authService] = useAuth(baseUrl)
+  const [blogs, blogsService] = useResource(baseUrl)
 
-  useEffect(() => {
-    fetchBlogs()
-  }, [])
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const userData = JSON.parse(loggedUserJSON)
-      setUser(userData)
-    }
-  }, [])
-
-  const handleLogin = async event => {
+  const handleLogin = event => {
     event.preventDefault()
-    try {
-      const loggedUser = await loginService.login({
-        username,
-        password,
-      })
-
-      window.localStorage.setItem(
-        'loggedBlogappUser',
-        JSON.stringify(loggedUser),
-      )
-
-      blogService.setToken(loggedUser.token)
-
-      setUser(user)
-      setUsername('')
-      setPassword('')
-      window.location.reload()
-    } catch (exeption) {
-      setNotificationMsg({
-        message: 'wrong username or password',
-        type: 'error',
-      })
-      setTimeout(() => {
-        setNotificationMsg({
-          message: null,
-        })
-      }, 5000)
-    }
+    authService.login(username.value, password.value)
   }
+
   const blogFormRef = useRef()
-  const addBlogs = async newObject => {
+  const addBlogs = newObject => {
     blogFormRef.current.toggleVisibility()
-    try {
-      blogService.setToken(user.token)
-      const addedBlogs = await blogService.create(newObject)
-      setBlogs(blogs.concat(addedBlogs))
-      setNotificationMsg({
-        message: `a new blog ${addedBlogs.title} by ${addedBlogs.author} added`,
-      })
-      setTimeout(() => {
-        setNotificationMsg({
-          message: null,
-        })
-      }, 5000)
-    } catch (exeption) {
-      setNotificationMsg({
-        message: 'An error occured while adding a new blog',
-        type: 'error',
-      })
-      setTimeout(() => {
-        setNotificationMsg({
-          message: null,
-        })
-      }, 5000)
-    }
+
+    const token = window.localStorage.getItem('loggedUserBlogApp')
+    blogsService.create(newObject, token)
+    if (blogs.length !== 0) console.log('blogs', blogs)
+    // try {
+    //   blogService.setToken(user.token)
+    //   const addedBlogs = await blogService.create(newObject)
+    //   setNotificationMsg({
+    //     message: `a new blog ${addedBlogs.title} by ${addedBlogs.author} added`,
+    //   })
+    //   setTimeout(() => {
+    //     setNotificationMsg({
+    //       message: null,
+    //     })
+    //   }, 5000)
+    // } catch (exeption) {
+    //   setNotificationMsg({
+    //     message: 'An error occured while adding a new blog',
+    //     type: 'error',
+    //   })
+    //   setTimeout(() => {
+    //     setNotificationMsg({
+    //       message: null,
+    //     })
+    //   }, 5000)
+    // }
   }
 
   const updateBlogs = async (id, newObject) => {
     try {
       console.log('updateBlogs', id, newObject)
       blogService.setToken(user.token)
-      const updatedBlogs = await blogService.update(id, newObject)
-      setBlogs(blogs.map(blog => (blog.id === id ? updatedBlogs : blog)))
+      // const updatedBlogs = await blogService.update(id, newObject)
+      // setBlogs(blogs.map(blog => (blog.id === id ? updatedBlogs : blog)))
     } catch (exeption) {
       setNotificationMsg({
         message: 'An error occured while updating a blog',
@@ -116,7 +79,7 @@ const App = () => {
     try {
       blogService.setToken(user.token)
       await blogService.deleteBlog(id)
-      setBlogs(blogs.filter(blog => blog.id !== id))
+      // setBlogs(blogs.filter(blog => blog.id !== id))
     } catch (exeption) {
       setNotificationMsg({
         message: 'An error occured while deleting a blog',
@@ -132,8 +95,7 @@ const App = () => {
 
   const logout = event => {
     event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser')
-    setUser(null)
+    authService.logout()
     window.location.reload()
   }
 
@@ -146,11 +108,9 @@ const App = () => {
           type={notificationMsg.type}
         />
         <LoginForm
-          username={username}
-          password={password}
           handleSubmit={handleLogin}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
+          usernameInput={username}
+          passwordInput={password}
         />{' '}
       </div>
     )

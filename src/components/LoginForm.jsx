@@ -1,13 +1,7 @@
 /* eslint-disable linebreak-style */
 import PropTypes from 'prop-types'
 
-const LoginForm = ({
-  handleSubmit,
-  handleUsernameChange,
-  handlePasswordChange,
-  username,
-  password,
-}) => (
+const LoginForm = ({ handleSubmit, usernameInput, passwordInput }) => (
   <div>
     <form onSubmit={handleSubmit}>
       <div>
@@ -15,9 +9,9 @@ const LoginForm = ({
           data-test="login-username"
           type="text"
           placeholder="username"
-          value={username}
+          value={usernameInput.value}
           name="Username"
-          onChange={handleUsernameChange}
+          onChange={usernameInput.onChange}
         />
       </div>
       <div>
@@ -25,9 +19,9 @@ const LoginForm = ({
           data-test="login-password"
           type="password"
           placeholder="password"
-          value={password}
+          value={passwordInput.value}
           name="Password"
-          onChange={handlePasswordChange}
+          onChange={passwordInput.onChange}
         />
       </div>
       <button data-test="login-button" type="submit">
@@ -39,10 +33,8 @@ const LoginForm = ({
 
 LoginForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  handleUsernameChange: PropTypes.func.isRequired,
-  handlePasswordChange: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired,
+  usernameInput: PropTypes.object.isRequired,
+  passwordInput: PropTypes.object.isRequired,
 }
 
 export default LoginForm

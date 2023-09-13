@@ -1,32 +1,41 @@
 /* eslint-disable linebreak-style */
-import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useField } from '../hooks'
 
 const BlogForm = ({ addBlog }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  // const [title, setTitle] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [url, setUrl] = useState('')
+  const title = useField('text')
+  const author = useField('text')
+  const url = useField('text')
 
-  const handleTitleChange = event => {
-    setTitle(event.target.value)
-  }
-  const handleAuthorChange = event => {
-    setAuthor(event.target.value)
-  }
-  const handleUrlChange = event => {
-    setUrl(event.target.value)
-  }
+  // const handleTitleChange = event => {
+  //   setTitle(event.target.value)
+  // }
+  // const handleAuthorChange = event => {
+  //   setAuthor(event.target.value)
+  // }
+  // const handleUrlChange = event => {
+  //   setUrl(event.target.value)
+  // }
 
   const createBlog = event => {
     event.preventDefault()
     addBlog({
-      title,
-      author,
-      url,
+      title: title.value,
+      author: author.value,
+      url: url.value,
     })
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+    console.log('blog object', {
+      title: title.value,
+      author: author.value,
+      url: url.value,
+    })
+
+    title.reset()
+    author.reset()
+    url.reset()
   }
 
   return (
@@ -38,33 +47,33 @@ const BlogForm = ({ addBlog }) => {
             title:
             <input
               data-test="title-input"
-              type="text"
+              type={title.type}
               name="Title"
-              value={title}
+              value={title.value}
               id="title"
-              onChange={handleTitleChange}
+              onChange={title.onChange}
             />
           </div>
           <div>
             author:
             <input
               data-test="author-input"
-              type="text"
+              type={author.type}
               name="Author"
-              value={author}
+              value={author.value}
               id="author"
-              onChange={handleAuthorChange}
+              onChange={author.onChange}
             />
           </div>
           <div>
             url:
             <input
               data-test="url-input"
-              type="text"
+              type={url.type}
               name="Url"
-              value={url}
+              value={url.value}
               id="url"
-              onChange={handleUrlChange}
+              onChange={url.onChange}
             />
           </div>
           <button data-test="create-button" type="submit">
