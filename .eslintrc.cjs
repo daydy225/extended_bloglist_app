@@ -37,6 +37,7 @@ module.exports = {
 
     'arrow-spacing': ['error', { before: true, after: true }],
     'implicit-arrow-linebreak': 'off',
+    'no-param-reassign': ['error', { state: true }],
 
     'no-console': 0,
     'no-alert': 0,

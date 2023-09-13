@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import {
+  setNotification,
+  clearNotification,
+} from '../features/notification/notificationSlice'
 
 export const useField = type => {
   const [value, setValue] = useState('')
@@ -22,6 +27,7 @@ export const useField = type => {
 
 export const useResource = baseUrl => {
   const [resources, setResources] = useState([])
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -44,11 +50,27 @@ export const useResource = baseUrl => {
           headers: { Authorization: `Bearer ${token}` },
         }
         const response = await axios.post(`${baseUrl}/blogs`, resource, config)
-        console.log('blogs', response.data)
         setResources([...resources, response.data])
+        dispatch(
+          setNotification({
+            message: `Blog ${response.data.title} created successfully`,
+            type: 'success',
+          }),
+        )
+        setTimeout(() => {
+          dispatch(clearNotification())
+        }, 5000)
       }
     } catch (error) {
-      throw new Error(error)
+      dispatch(
+        setNotification({
+          message: error.response.data.error,
+          type: 'error',
+        }),
+      )
+      setTimeout(() => {
+        dispatch(clearNotification())
+      }, 5000)
     }
   }
 
@@ -83,9 +105,28 @@ export const useResource = baseUrl => {
         }
         await axios.delete(`${baseUrl}/blogs/${id}`, config)
         setResources(resources.filter(r => r.id !== id))
+        dispatch(
+          setNotification({
+            message: `Blog ${
+              resources.find(r => r.id === id).title
+            } deleted successfully`,
+            type: 'success',
+          }),
+        )
+        setTimeout(() => {
+          dispatch(clearNotification())
+        }, 5000)
       }
     } catch (error) {
-      throw new Error(error)
+      dispatch(
+        setNotification({
+          message: error.response.data.error,
+          type: 'error',
+        }),
+      )
+      setTimeout(() => {
+        dispatch(clearNotification())
+      }, 5000)
     }
   }
 
