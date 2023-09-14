@@ -26,21 +26,9 @@ const App = () => {
     blogsService.create(newObject)
   }
 
-  const updateBlogs = async (id, newObject) => {
-    try {
-      await blogsService.update(id, newObject)
-    } catch (error) {
-      console.log('update error', error)
-    }
-  }
+  const updateBlogs = (id, newObject) => blogsService.update(id, newObject)
 
-  const deleteBlogs = async id => {
-    try {
-      await blogsService.remove(id)
-    } catch (error) {
-      console.log('delete error', error)
-    }
-  }
+  const deleteBlogs = id => blogsService.remove(id)
 
   const logout = event => {
     event.preventDefault()

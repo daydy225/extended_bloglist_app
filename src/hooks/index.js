@@ -6,7 +6,12 @@ import {
   clearNotification,
 } from '../features/notification/notificationSlice'
 
-import { setBlogs, createBlog } from '../features/blogs/blogsSlice'
+import {
+  setBlogs,
+  createBlog,
+  updateBlog,
+  removeBlog,
+} from '../features/blogs/blogsSlice'
 
 export const useField = type => {
   const [value, setValue] = useState('')
@@ -77,66 +82,64 @@ export const useResource = baseUrl => {
     }
   }
 
-  // const update = async (id, resource) => {
-  //   try {
-  //     const token = window.localStorage.getItem('loggedUserBlogApp')
-  //     if (token) {
-  //       const config = {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       }
+  const update = async (id, resource) => {
+    try {
+      const token = window.localStorage.getItem('loggedUserBlogApp')
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        }
 
-  //       const response = await axios.put(
-  //         `${baseUrl}/blogs/${id}`,
-  //         resource,
-  //         config,
-  //       )
-  //       setResources(
-  //         resources.map(r => (r.id === id ? { ...r, ...response.data } : r)),
-  //       )
-  //     }
-  //   } catch (error) {
-  //     throw new Error(error)
-  //   }
-  // }
+        const response = await axios.put(
+          `${baseUrl}/blogs/${id}`,
+          resource,
+          config,
+        )
+        dispatch(updateBlog(response.data))
+      }
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
 
-  // const remove = async id => {
-  //   try {
-  //     const token = window.localStorage.getItem('loggedUserBlogApp')
-  //     if (token) {
-  //       const config = {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       }
-  //       await axios.delete(`${baseUrl}/blogs/${id}`, config)
-  //       setResources(resources.filter(r => r.id !== id))
-  //       dispatch(
-  //         setNotification({
-  //           message: `Blog ${
-  //             resources.find(r => r.id === id).title
-  //           } deleted successfully`,
-  //           type: 'success',
-  //         }),
-  //       )
-  //       setTimeout(() => {
-  //         dispatch(clearNotification())
-  //       }, 5000)
-  //     }
-  //   } catch (error) {
-  //     dispatch(
-  //       setNotification({
-  //         message: error.response.data.error,
-  //         type: 'error',
-  //       }),
-  //     )
-  //     setTimeout(() => {
-  //       dispatch(clearNotification())
-  //     }, 5000)
-  //   }
-  // }
+  const remove = async id => {
+    try {
+      const token = window.localStorage.getItem('loggedUserBlogApp')
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+        await axios.delete(`${baseUrl}/blogs/${id}`, config)
+        dispatch(removeBlog(id))
+        dispatch(
+          setNotification({
+            message: `Blog ${
+              resources.find(r => r.id === id).title
+            } deleted successfully`,
+            type: 'success',
+          }),
+        )
+        setTimeout(() => {
+          dispatch(clearNotification())
+        }, 5000)
+      }
+    } catch (error) {
+      dispatch(
+        setNotification({
+          message: error.response.data.error,
+          type: 'error',
+        }),
+      )
+      setTimeout(() => {
+        dispatch(clearNotification())
+      }, 5000)
+    }
+  }
 
   const service = {
     create,
-    // update,
-    // remove,
+    update,
+    remove,
   }
 
   return [blogs, service]
