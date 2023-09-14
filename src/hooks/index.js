@@ -13,6 +13,8 @@ import {
   removeBlog,
 } from '../features/blogs/blogsSlice'
 
+import { setUser } from '../features/user/userSlice'
+
 export const useField = type => {
   const [value, setValue] = useState('')
 
@@ -147,7 +149,9 @@ export const useResource = baseUrl => {
 
 // make hook to authenticate user
 export const useAuth = baseUrl => {
-  const [user, setUser] = useState(null)
+  // const [user, setUser] = useState(null)
+  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.user)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -158,7 +162,7 @@ export const useAuth = baseUrl => {
             headers: { Authorization: `Bearer ${token}` },
           }
           const response = await axios.get(`${baseUrl}/users/get-data`, config)
-          setUser(response.data)
+          dispatch(setUser(response.data))
         }
       } catch (error) {
         console.error(error)
@@ -177,7 +181,7 @@ export const useAuth = baseUrl => {
 
       window.localStorage.setItem('loggedUserBlogApp', response.data.token)
 
-      setUser(response.data)
+      dispatch(setUser(response.data))
     } catch (error) {
       console.error(error)
     }
@@ -185,7 +189,7 @@ export const useAuth = baseUrl => {
 
   const logout = () => {
     window.localStorage.removeItem('loggedUserBlogApp')
-    setUser(null)
+    dispatch(setUser(null))
   }
 
   const service = {

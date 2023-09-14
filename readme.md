@@ -15,3 +15,7 @@
 ## 7.12: redux, step 3
 
 - Expand your solution so that it is again possible to like and delete a blog.
+
+## 7.12: redux, step 4
+
+- Store the information about the signed-in user in the Redux store.
