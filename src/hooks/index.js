@@ -182,8 +182,26 @@ export const useAuth = baseUrl => {
       window.localStorage.setItem('loggedUserBlogApp', response.data.token)
 
       dispatch(setUser(response.data))
+      dispatch(
+        setNotification({
+          message: `Welcome ${response.data.username}!`,
+          type: 'success',
+        }),
+      )
+      setTimeout(() => {
+        dispatch(clearNotification())
+      }, 5000)
     } catch (error) {
       console.error(error)
+      dispatch(
+        setNotification({
+          message: error.response.data.error,
+          type: 'error',
+        }),
+      )
+      setTimeout(() => {
+        dispatch(clearNotification())
+      }, 5000)
     }
   }
 
